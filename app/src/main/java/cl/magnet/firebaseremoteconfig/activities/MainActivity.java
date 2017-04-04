@@ -1,32 +1,27 @@
-package cl.magnet.firebaseremoteconfig;
+package cl.magnet.firebaseremoteconfig.activities;
 
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 
+import cl.magnet.firebaseremoteconfig.R;
+import cl.magnet.firebaseremoteconfig.utils.Constant;
+
 public class MainActivity extends AppCompatActivity {
 
-    public static String WELCOME_MESSAGE = "welcome_message";
-    public static String TOOLBAR_TITLE_COLOR = "toolbar_title_color";
-    public static String TOOLBAR_BACKGROUND_COLOR = "toolbar_background_color";
+    public static final String TAG = MainActivity.class.getSimpleName();
     FirebaseRemoteConfig mFirebaseRemoteConfig;
-    long cacheExpiration = 0L;
+    long cacheExpiration = 60;
     TextView mLandingMessageTextView;
-    private Toolbar mToolbar;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,16 +41,11 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-                            Toast.makeText(MainActivity.this, "Fetch Succeeded",
-                                    Toast.LENGTH_SHORT).show();
-
-                            // Once the config is successfully fetched it must be activated before newly fetched
-                            // values are returned.
+                            Log.d(TAG, "Fetch Succeeded");
                             mFirebaseRemoteConfig.activateFetched();
                             displayWelcomeMessage();
                         } else {
-                            Toast.makeText(MainActivity.this, "Fetch Failed",
-                                    Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "Fetch Failed");
                         }
 
                     }
@@ -63,10 +53,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Set initial value to toolbar (Title, Visibility, Arrow Icon)
+     * Set initial value to toolbar (Title, Background Color)
      */
     private void setupToolbar(int bgColor, int titleColor) {
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         if ((bgColor != 0) && (titleColor != 0)) {
             mToolbar.setTitleTextColor(titleColor);
@@ -76,10 +66,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Display message with data from firebase server
+     */
     public void displayWelcomeMessage() {
-        String welcomeMessage = mFirebaseRemoteConfig.getString(WELCOME_MESSAGE);
-        String tbTitleColor = mFirebaseRemoteConfig.getString(TOOLBAR_TITLE_COLOR);
-        String tbBackgroundColor = mFirebaseRemoteConfig.getString(TOOLBAR_BACKGROUND_COLOR);
+        String welcomeMessage = mFirebaseRemoteConfig.getString(Constant.WELCOME_MESSAGE);
+        String tbTitleColor = mFirebaseRemoteConfig.getString(Constant.TOOLBAR_TITLE_COLOR);
+        String tbBackgroundColor = mFirebaseRemoteConfig.getString(Constant.TOOLBAR_BACKGROUND_COLOR);
 
         int bgColor = Color.parseColor(tbBackgroundColor);
         int titleColor = Color.parseColor(tbTitleColor);
